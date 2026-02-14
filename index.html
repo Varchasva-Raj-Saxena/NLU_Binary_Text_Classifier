@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports vs Politics Classification | NLU Assignment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --bg-body: #f1f5f9;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --code-bg: #1e293b;
+            --sidebar-width: 280px;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.8;
+            color: var(--text-main);
+            background-color: var(--bg-body);
+            margin: 0;
+            display: flex;
+        }
+
+        /* --- Sidebar Navigation --- */
+        nav {
+            width: var(--sidebar-width);
+            background: var(--bg-sidebar);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 2.5rem 2rem;
+            box-sizing: border-box;
+            border-right: 1px solid #e2e8f0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        nav h3 {
+            color: var(--primary-dark);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        nav li {
+            margin-bottom: 0.5rem;
+        }
+
+        nav a {
+            display: block;
+            text-decoration: none;
+            color: var(--secondary);
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+            background: #eff6ff;
+            transform: translateX(5px);
+        }
+
+        nav a.active {
+            color: #ffffff;
+            background: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        /* --- Main Content --- */
+        main {
+            margin-left: var(--sidebar-width);
+            padding: 4rem 5rem;
+            max-width: 1000px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Header Styling */
+        header {
+            margin-bottom: 4rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 1rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        /* Cards */
+        section {
+            background: var(--bg-card);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            margin-bottom: 3rem;
+            opacity: 0; /* Hidden initially for animation */
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Author Info Card */
+        .author-info {
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #bfdbfe;
+            color: var(--primary-dark);
+            margin-top: 2rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Code Blocks */
+        pre {
+            background-color: var(--code-bg);
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            border: 1px solid #334155;
+            position: relative;
+        }
+
+        /* Syntax Highlighting */
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .comment { color: #7f848e; font-style: italic; }
+        .function { color: #61afef; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 2rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--text-main);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #f8fafc; transition: background 0.2s; }
+
+        /* Notes/Callouts */
+        .note {
+            background-color: #fffbeb;
+            border-left: 5px solid #f59e0b;
+            color: #92400e;
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            nav { width: 240px; padding: 2rem 1rem; }
+            main { margin-left: 240px; padding: 3rem; }
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            nav { 
+                width: 100%; 
+                height: auto; 
+                position: relative; 
+                padding: 1rem; 
+                display: flex; 
+                overflow-x: auto;
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            nav h3 { display: none; }
+            nav ul { display: flex; gap: 1rem; margin: 0; }
+            nav li { margin: 0; }
+            nav a { white-space: nowrap; font-size: 0.8rem; padding: 0.5rem 0.8rem; }
+            main { margin-left: 0; padding: 2rem 1.5rem; }
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h3>NLU Assignment</h3>
+        <ul>
+            <li><a href="#abstract">Abstract</a></li>
+            <li><a href="#dataset">Data Acquisition</a></li>
+            <li><a href="#methodology">Methodology</a></li>
+            <li><a href="#models">Model Implementation</a></li>
+            <li><a href="#results">Results & Analysis</a></li>
+            <li><a href="#limitations">Limitations</a></li>
+            <li><a href="#conclusion">Conclusion</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <header>
+            <h1>Sports vs. Politics Classification</h1>
+            <p style="font-size: 1.2rem; color: var(--secondary);">Binary Text Classification using AG News Dataset</p>
+            <div class="author-info">
+                <strong>Student:</strong> Varchasva Raj Saxena<br>
+                <strong>ID:</strong> B23CM1062<br>
+                <strong>Department:</strong> Artificial Intelligence & Data Sciences, IIT Jodhpur
+            </div>
+        </header>
+
+        <section id="abstract">
+            <h2>Abstract</h2>
+            <p>
+                This project details the design and implementation of a machine learning classifier capable of distinguishing between "Sports" and "Politics" news articles with approximately 96% accuracy. We constructed a balanced dataset of 25,000 documents from the AG News corpus and conducted a comparative analysis of three feature representation techniques (Bag of Words, TF-IDF, N-Grams) across three supervised learning algorithms.
+            </p>
+        </section>
+
+        <section id="dataset">
+            <h2>1. Data Acquisition & Curation</h2>
+            
+            <h3>Why AG News over Web Scraping?</h3>
+            <p>
+                Initially, we attempted to scrape data from Wikipedia and RSS feeds. However, this approach failed due to two primary issues:
+            </p>
+            <ul>
+                <li><strong>Anti-Bot Protections:</strong> High-volume requests were blocked by major news sites.</li>
+                <li><strong>Unstructured HTML:</strong> Cleaning ads, navigation bars, and HTML artifacts introduced significant noise.</li>
+            </ul>
+            <p>
+                Consequently, we utilized the <strong>AG News corpus</strong>, a standard benchmark dataset, to ensure high-quality ground truth labels.
+            </p>
+
+            <h3>Dataset Construction Code</h3>
+            <p>The code below demonstrates loading the massive dataset and filtering specifically for our binary classification task (Politics vs. Sports).</p>
+
+            <pre><code><span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">from</span> datasets <span class="keyword">import</span> load_dataset
+
+<span class="comment"># 1. Load AG News (Labels: 0=World, 1=Sports, 2=Business, 3=Sci/Tech)</span>
+dataset = load_dataset(<span class="string">"ag_news"</span>)
+full_df = pd.DataFrame(dataset[<span class="string">'train'</span>])
+
+<span class="comment"># 2. Filter for World (Politics) and Sports</span>
+<span class="comment"># We remap Class 0 (World) to "Politics" and keep Class 1 as "Sports"</span>
+filtered_df = full_df[full_df[<span class="string">'label'</span>].isin([0, 1])].copy()
+
+<span class="comment"># 3. Balance the Dataset</span>
+<span class="comment"># We sample exactly 12,500 documents per class to prevent majority class bias</span>
+df_politics = filtered_df[filtered_df[<span class="string">'label'</span>] == 0].sample(12500, random_state=42)
+df_sports = filtered_df[filtered_df[<span class="string">'label'</span>] == 1].sample(12500, random_state=42)
+
+final_df = pd.concat([df_politics, df_sports])
+<span class="comment"># Shuffle to remove temporal ordering bias</span>
+final_df = final_df.sample(frac=1, random_state=42).reset_index(drop=True)</code></pre>
+
+            <div class="note">
+                <strong>Note on Preprocessing:</strong> We employed stratified sampling to split the data into 20,000 training samples and 5,000 testing samples (80:20 ratio), preserving the 50/50 class distribution.
+            </div>
+        </section>
+
+        <section id="methodology">
+            <h2>2. Methodology: Feature Representation</h2>
+            <p>Machine learning models require numerical input. We compared three vectorization strategies:</p>
+
+            <ul>
+                <li>
+                    <strong>Bag of Words (BoW):</strong> Represents text as a vector of word counts. While simple, it often biases models toward frequent but uninformative words.
+                </li>
+                <li>
+                    <strong>TF-IDF:</strong> Weighs terms based on importance. It penalizes words that appear in too many documents (like "the") and highlights distinctive terms (like "election" or "touchdown").
+                    
+                </li>
+                <li>
+                    <strong>N-Grams (Bi-grams):</strong> Captures local context by including adjacent word pairs (e.g., "White House" vs "White" and "House"). This helps distinguish phrases that change meaning when words are combined.
+                    
+                </li>
+            </ul>
+
+            <pre><code><span class="keyword">from</span> sklearn.feature_extraction.text <span class="keyword">import</span> CountVectorizer, TfidfVectorizer
+
+features = {
+    <span class="comment"># Simple word counts</span>
+    <span class="string">"Bag of Words"</span>: CountVectorizer(stop_words=<span class="string">'english'</span>, max_features=10000),
+    
+    <span class="comment"># Weighted importance</span>
+    <span class="string">"TF-IDF"</span>: TfidfVectorizer(stop_words=<span class="string">'english'</span>, max_features=10000),
+    
+    <span class="comment"># Contextual pairs (Unigrams + Bigrams)</span>
+    <span class="string">"N-Grams (1,2)"</span>: TfidfVectorizer(ngram_range=(1, 2), stop_words=<span class="string">'english'</span>, max_features=10000)
+}</code></pre>
+        </section>
+
+        <section id="models">
+            <h2>3. Machine Learning Models</h2>
+            <p>We trained three distinct classifiers on the feature sets described above:</p>
+            <ol>
+                <li><strong>Multinomial Naive Bayes (MNB):</strong> A probabilistic classifier assuming feature independence. It serves as a strong, efficient baseline.</li>
+                <li><strong>Logistic Regression (LR):</strong> A linear model that learns a hyperplane to separate classes. It provides high interpretability regarding which words drive the decision.</li>
+                <li>
+                    <strong>Linear SVM:</strong> Maximizes the margin between the two classes. It is traditionally the state-of-the-art for high-dimensional, sparse text data.
+                    
+                </li>
+            </ol>
+
+            <pre><code><span class="keyword">from</span> sklearn.naive_bayes <span class="keyword">import</span> MultinomialNB
+<span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> LinearSVC
+<span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LogisticRegression
+<span class="keyword">from</span> sklearn.pipeline <span class="keyword">import</span> Pipeline
+
+models = {
+    <span class="string">"Naive Bayes"</span>: MultinomialNB(),
+    <span class="string">"Logistic Regression"</span>: LogisticRegression(max_iter=1000),
+    <span class="string">"SVM (Linear)"</span>: LinearSVC(dual=False)
+}
+
+<span class="comment"># Training Loop</span>
+<span class="keyword">for</span> feat_name, vectorizer <span class="keyword">in</span> features.items():
+    <span class="keyword">for</span> model_name, clf <span class="keyword">in</span> models.items():
+        pipe = Pipeline([
+            (<span class="string">'vectorizer'</span>, vectorizer),
+            (<span class="string">'classifier'</span>, clf)
+        ])
+        pipe.fit(X_train, y_train)
+        <span class="comment"># Evaluation...</span></code></pre>
+        </section>
+
+        <section id="results">
+            <h2>4. Experimental Results & Analysis</h2>
+            <p>The following table summarizes the accuracy scores on the held-out test set (5,000 samples).</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature Representation</th>
+                        <th>Model</th>
+                        <th>Accuracy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Bag of Words</td>
+                        <td>Naive Bayes</td>
+                        <td>91.50%</td>
+                    </tr>
+                    <tr>
+                        <td>Bag of Words</td>
+                        <td>Logistic Regression</td>
+                        <td>93.20%</td>
+                    </tr>
+                    <tr>
+                        <td>Bag of Words</td>
+                        <td>Linear SVM</td>
+                        <td>92.80%</td>
+                    </tr>
+                    <tr>
+                        <td>TF-IDF</td>
+                        <td>Naive Bayes</td>
+                        <td>92.10%</td>
+                    </tr>
+                    <tr>
+                        <td>TF-IDF</td>
+                        <td>Logistic Regression</td>
+                        <td>94.50%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TF-IDF</strong></td>
+                        <td><strong>Linear SVM</strong></td>
+                        <td><strong>95.80%</strong></td>
+                    </tr>
+                    <tr>
+                        <td>N-Grams (1,2)</td>
+                        <td>Naive Bayes</td>
+                        <td>93.40%</td>
+                    </tr>
+                    <tr>
+                        <td>N-Grams (1,2)</td>
+                        <td>Linear SVM</td>
+                        <td>95.75%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Why did SVM + TF-IDF perform best?</h3>
+            <p>The Linear SVM combined with TF-IDF achieved the peak accuracy of 95.80%. This success is attributed to:</p>
+            <ul>
+                <li><strong>Signal Isolation:</strong> TF-IDF effectively down-weighted generic words, allowing strong topic-specific terms (e.g., "treaty", "goal") to drive the vectors.</li>
+                <li><strong>Margin Maximization:</strong> SVMs are robust to overfitting in high-dimensional spaces. For documents with ambiguous terms (e.g., "race" or "win"), the SVM aggregates the weights of all other unique tokens more effectively than Naive Bayes.</li>
+            </ul>
+        </section>
+
+        <section id="limitations">
+            <h2>5. Limitations</h2>
+            <p>Despite achieving high accuracy, the system has specific constraints:</p>
+            <ul>
+                <li><strong>Static Dataset:</strong> The model is trained on historical data. It may struggle with new political figures or emerging sports stars (Out-of-Vocabulary problem).</li>
+                <li><strong>Short Text Ambiguity:</strong> Headlines under 5 words often lack enough features for TF-IDF to generate a distinct vector.</li>
+                <li><strong>Domain Overlap:</strong> "Sports Politics" articles (e.g., legislation on stadium funding) contain features from both classes, confusing the linear boundary.</li>
+            </ul>
+        </section>
+
+        <section id="conclusion">
+            <h2>Conclusion</h2>
+            <p>
+                This project successfully developed a text classifier with over 95% accuracy. The results indicate that while simple Bag of Words models are effective, the combination of <strong>TF-IDF features and a Linear Support Vector Machine</strong> provides the most robust solution for distinguishing Sports from Politics. Future work could involve Deep Learning (BERT) to handle semantic nuances better.
+            </p>
+        </section>
+
+    </main>
+
+    <script>
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Navigation Active State Logic
+        const sections = document.querySelectorAll('section');
+        const navLi = document.querySelectorAll('nav ul li a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLi.forEach(a => {
+                a.classList.remove('active');
+                if (a.getAttribute('href').includes(current)) {
+                    a.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
